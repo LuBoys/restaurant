@@ -1,0 +1,2235 @@
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Inter:wght@300;400;500&family=Noto+Serif+JP:wght@300;400;500;600;700&display=swap");
+@import "tailwindcss";
+
+/* ╔════════════════════════════════════════════════════════════════════════╗
+║  SECTION: CSS Custom Properties (Design Tokens)                        ║
+║                                                                        ║
+║  WHY: Custom properties allow us to define our design system in one    ║
+║  place. Changing a color here updates it everywhere.                   ║
+║                                                                        ║
+║  DESIGN PHILOSOPHY: Black & Gold creates luxury perception.            ║
+║  The warm gold (#c9a962) complements the deep blacks and adds          ║
+║  sophistication without being gaudy.                                   ║
+╚════════════════════════════════════════════════════════════════════════╝ */
+:root {
+/* === Color Palette === */
+--color-black: #0a0a0a;           /* Deep black - primary background */
+--color-black-light: #141414;      /* Slightly lighter for cards/sections */
+--color-black-lighter: #1a1a1a;    /* For subtle elevation */
+--color-gold: #c9a962;             /* Primary gold accent */
+--color-gold-light: #e8d5a3;       /* Lighter gold for hover states */
+--color-gold-dark: #a08540;        /* Darker gold for shadows */
+--color-cream: #f5f0e6;            /* Warm cream for primary text */
+--color-cream-dark: #d4cfc5;       /* Muted cream for secondary text */
+--color-red: #8b2635;              /* Japanese red - used sparingly */
+/* === Typography === */
+--font-heading: 'Cormorant Garamond', Georgia, serif;
+--font-japanese: 'Noto Serif JP', serif;
+--font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+/* === Spacing Scale === */
+--space-xs: 0.5rem;    /* 8px */
+--space-sm: 1rem;      /* 16px */
+--space-md: 2rem;      /* 32px */
+--space-lg: 4rem;      /* 64px */
+--space-xl: 8rem;      /* 128px */
+--space-2xl: 12rem;    /* 192px */
+/* === Animation Timing === */
+--ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+--ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+--ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+/* === Layout === */
+--max-width: 1400px;
+--header-height: 80px;
+}
+/* ╔════════════════════════════════════════════════════════════════════════╗
+║  SECTION: CSS Reset & Base Styles                                      ║
+║                                                                        ║
+║  WHY: Browsers have default styles that vary. A reset ensures          ║
+║  consistent rendering across all browsers.                             ║
+╚════════════════════════════════════════════════════════════════════════╝ */
+*, *::before, *::after {
+margin: 0;
+padding: 0;
+box-sizing: border-box;
+}
+html {
+/* Smooth scrolling for anchor links */
+scroll-behavior: smooth;
+/* Prevent horizontal scroll from animations */
+overflow-x: hidden;
+background-color: #0a0a0a;
+}
+body {
+font-family: var(--font-body);
+font-weight: 300;
+font-size: 16px;
+line-height: 1.6;
+color: var(--color-cream);
+background-color: var(--color-black);
+/* Hide custom cursor on mobile */
+cursor: default;
+overflow-x: hidden;
+}
+/* Custom selection color */
+::selection {
+background-color: var(--color-gold);
+color: var(--color-black);
+}
+/* ╔════════════════════════════════════════════════════════════════════════╗
+║  SECTION: Loading Screen                                               ║
+║                                                                        ║
+║  WHY: We need to preload 192 images before the animation can play.     ║
+║  The loading screen shows progress and prevents a broken experience.   ║
+║                                                                        ║
+║  TECHNIQUE: CSS transforms and opacity for smooth animations.          ║
+║  We avoid animating properties that trigger layout (like width).       ║
+╚════════════════════════════════════════════════════════════════════════╝ */
+.loader {
+position: fixed;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+background-color: var(--color-black);
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+z-index: 9999;
+transition: opacity 0.8s var(--ease-out-expo),
+visibility 0.8s var(--ease-out-expo);
+}
+.loader.hidden {
+opacity: 0;
+visibility: hidden;
+pointer-events: none;
+}
+.loader__logo {
+font-family: var(--font-japanese);
+font-size: 4rem;
+font-weight: 300;
+color: var(--color-gold);
+margin-bottom: var(--space-md);
+letter-spacing: 0.3em;
+}
+.loader__text {
+font-family: var(--font-heading);
+font-size: 0.875rem;
+letter-spacing: 0.3em;
+text-transform: uppercase;
+color: var(--color-cream-dark);
+margin-bottom: var(--space-md);
+}
+.loader__progress {
+width: 200px;
+height: 1px;
+background-color: var(--color-black-lighter);
+position: relative;
+overflow: hidden;
+}
+.loader__progress-bar {
+position: absolute;
+top: 0;
+left: 0;
+height: 100%;
+width: 0%;
+background-color: var(--color-gold);
+transition: width 0.3s var(--ease-out-quart);
+}
+.loader__count {
+font-family: var(--font-body);
+font-size: 0.75rem;
+color: var(--color-gold);
+margin-top: var(--space-sm);
+letter-spacing: 0.1em;
+}
+/* ╔════════════════════════════════════════════════════════════════════════╗
+║  SECTION: Navigation                                                   ║
+║                                                                        ║
+║  WHY: Fixed navigation allows easy access to sections. We hide it      ║
+║  on scroll down (to maximize content area) and show on scroll up.      ║
+╚════════════════════════════════════════════════════════════════════════╝ */
+.nav {
+position: fixed;
+top: 0;
+left: 0;
+width: 100%;
+height: var(--header-height);
+display: flex;
+align-items: center;
+justify-content: space-between;
+padding: 0 var(--space-md);
+z-index: 1000;
+/* Solid background - no gradient */
+background: rgba(10, 10, 10, 0.95);
+/* Fade only - no sliding transform that creates shadow effect */
+opacity: 1;
+transition: opacity 0.25s ease;
+}
+.nav.hidden {
+opacity: 0;
+pointer-events: none;
+}
+.nav__logo {
+font-family: var(--font-japanese);
+font-size: 1.5rem;
+font-weight: 400;
+color: var(--color-gold);
+text-decoration: none;
+letter-spacing: 0.1em;
+display: flex;
+align-items: center;
+gap: var(--space-xs);
+}
+.nav__logo-en {
+font-family: var(--font-heading);
+font-size: 0.75rem;
+font-weight: 300;
+letter-spacing: 0.3em;
+text-transform: uppercase;
+color: var(--color-cream);
+}
+.nav__links {
+display: flex;
+gap: var(--space-md);
+list-style: none;
+}
+.nav__link {
+font-family: var(--font-heading);
+font-size: 0.8rem;
+font-weight: 400;
+letter-spacing: 0.15em;
+text-transform: uppercase;
+color: var(--color-cream);
+text-decoration: none;
+position: relative;
+padding: var(--space-xs) 0;
+transition: color 0.3s ease;
+}
+.nav__link::after {
+content: '';
+position: absolute;
+bottom: 0;
+left: 0;
+width: 0;
+height: 1px;
+background-color: var(--color-gold);
+transition: width 0.3s var(--ease-out-quart);
+}
+.nav__link:hover {
+color: var(--color-gold);
+}
+.nav__link:hover::after {
+width: 100%;
+}
+.nav__cta {
+font-family: var(--font-heading);
+font-size: 0.75rem;
+font-weight: 400;
+letter-spacing: 0.2em;
+text-transform: uppercase;
+color: var(--color-black);
+background-color: var(--color-gold);
+padding: var(--space-xs) var(--space-sm);
+text-decoration: none;
+transition: all 0.3s var(--ease-out-quart);
+}
+.nav__cta:hover {
+background-color: var(--color-gold-light);
+transform: translateY(-2px);
+}
+/* Mobile navigation */
+.nav__menu-btn {
+display: none;
+flex-direction: column;
+gap: 6px;
+background: none;
+border: none;
+cursor: pointer;
+padding: var(--space-xs);
+}
+.nav__menu-btn span {
+display: block;
+width: 24px;
+height: 1px;
+background-color: var(--color-gold);
+transition: all 0.3s ease;
+}
+@media (max-width: 768px) {
+.nav__links, .nav__cta {
+display: none;
+}
+.nav__menu-btn {
+display: flex;
+}
+}
+/* ╔════════════════════════════════════════════════════════════════════════╗
+║  SECTION: Hero with Canvas Scroll Animation                            ║
+║                                                                        ║
+║  TECHNIQUE: Scroll-Driven Image Sequence                               ║
+║                                                                        ║
+║  The hero section contains a <canvas> element that displays frames     ║
+║  based on scroll position. Key concepts:                               ║
+║                                                                        ║
+║  1. PINNING: The section stays fixed while user scrolls through the    ║
+║     animation. GSAP ScrollTrigger handles this with pin: true.         ║
+║                                                                        ║
+║  2. SCRUBBING: Scroll position maps to animation progress.             ║
+║     scrub: 0.5 adds slight smoothing (0.5 second delay).               ║
+║                                                                        ║
+║  3. CANVAS RENDERING: We use canvas instead of swapping img src        ║
+║     because canvas is GPU-accelerated and smoother.                    ║
+║                                                                        ║
+║  4. HEIGHT CALCULATION: We make the container 400vh (4x viewport)      ║
+║     so users have enough scroll distance to see the full animation.    ║
+╚════════════════════════════════════════════════════════════════════════╝ */
+.hero {
+position: relative;
+width: 100%;
+height: 100vh;
+height: 100dvh; /* Dynamic viewport height for better mobile support */
+background: #0a0a0a;
+background-color: var(--color-black);
+/* This is the scrollable area - 400vh gives smooth animation playback */
+}
+.hero__canvas-container {
+position: absolute;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+overflow: hidden;
+background: #0a0a0a;
+background-color: var(--color-black);
+}
+.hero__video {
+position: absolute;
+top: 50%;
+left: 50%;
+transform: translate(-50%, -50%);
+min-width: 100%;
+min-height: 100%;
+object-fit: cover;
+width: 100%;
+height: 100%;
+}
+/* Dark overlay for better text readability */
+.hero__overlay {
+position: absolute;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+background: linear-gradient(
+to bottom,
+rgba(10, 10, 10, 0.4) 0%,
+rgba(10, 10, 10, 0.1) 30%,
+rgba(10, 10, 10, 0.1) 50%,
+rgba(10, 10, 10, 0.6) 75%,
+rgba(10, 10, 10, 1) 100%
+);
+pointer-events: none;
+}
+/* Bottom alpha mask for seamless blend into next section */
+.hero__fade {
+position: absolute;
+bottom: 0;
+left: 0;
+width: 100%;
+height: 30%;
+background: linear-gradient(
+to bottom,
+transparent 0%,
+rgba(10, 10, 10, 0.5) 40%,
+rgba(10, 10, 10, 0.85) 70%,
+var(--color-black) 100%
+);
+pointer-events: none;
+z-index: 3;
+}
+/* Hero content overlay */
+.hero__content {
+position: absolute;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+text-align: center;
+pointer-events: none;
+z-index: 2;
+}
+.hero__japanese {
+font-family: var(--font-japanese);
+font-size: clamp(3rem, 10vw, 8rem);
+font-weight: 300;
+color: var(--color-gold);
+letter-spacing: 0.3em;
+margin-bottom: var(--space-xs);
+opacity: 0;
+transform: translateY(30px);
+}
+.hero__title {
+font-family: var(--font-heading);
+font-size: clamp(1rem, 3vw, 1.5rem);
+font-weight: 300;
+letter-spacing: 0.5em;
+text-transform: uppercase;
+color: var(--color-cream);
+margin-bottom: var(--space-md);
+opacity: 0;
+transform: translateY(30px);
+}
+.hero__tagline {
+font-family: var(--font-heading);
+font-size: clamp(0.875rem, 2vw, 1rem);
+font-weight: 300;
+font-style: italic;
+letter-spacing: 0.2em;
+color: var(--color-cream-dark);
+opacity: 0;
+transform: translateY(30px);
+}
+.hero__actions {
+opacity: 0;
+transform: translateY(20px);
+margin-top: var(--space-md);
+pointer-events: auto;
+}
+.hero__order-btn {
+font-family: var(--font-heading);
+font-size: 0.78rem;
+font-weight: 400;
+letter-spacing: 0.22em;
+text-transform: uppercase;
+display: inline-flex;
+align-items: center;
+justify-content: center;
+padding: 0.9rem 1.7rem;
+color: var(--color-black);
+background: linear-gradient(120deg, var(--color-gold), var(--color-gold-light));
+text-decoration: none;
+border: 1px solid rgba(201, 169, 98, 0.55);
+box-shadow: 0 10px 30px rgba(160, 133, 64, 0.28);
+transition: transform 0.35s var(--ease-out-quart), box-shadow 0.35s ease, filter 0.35s ease;
+position: relative;
+overflow: hidden;
+isolation: isolate;
+}
+.hero__order-btn::before {
+content: "";
+position: absolute;
+top: -8%;
+left: -90%;
+width: 70%;
+height: 116%;
+background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.45) 50%, transparent 100%);
+transform: skewX(-20deg);
+transition: left 0.55s var(--ease-out-quart);
+z-index: -1;
+}
+.hero__order-btn:hover {
+transform: translateY(-3px);
+box-shadow: 0 14px 36px rgba(160, 133, 64, 0.36);
+filter: brightness(1.05);
+}
+.hero__order-btn:hover::before {
+left: 130%;
+}
+.hero__order-btn:active {
+transform: translateY(0);
+}
+/* Scroll indicator */
+.hero__scroll {
+position: absolute;
+bottom: var(--space-lg);
+left: 50%;
+transform: translateX(-50%);
+display: flex;
+flex-direction: column;
+align-items: center;
+gap: var(--space-sm);
+opacity: 0;
+z-index: 2;
+}
+.hero__scroll-text {
+font-family: var(--font-heading);
+font-size: 0.7rem;
+letter-spacing: 0.3em;
+text-transform: uppercase;
+color: var(--color-cream-dark);
+}
+.hero__scroll-line {
+width: 1px;
+height: 60px;
+background: linear-gradient(
+to bottom,
+var(--color-gold) 0%,
+transparent 100%
+);
+animation: scrollPulse 2s ease-in-out infinite;
+}
+@keyframes scrollPulse {
+0%, 100% {
+opacity: 0.3;
+transform: scaleY(0.5);
+transform-origin: top;
+}
+50% {
+opacity: 1;
+transform: scaleY(1);
+}
+}
+/* ╔════════════════════════════════════════════════════════════════════════╗
+║  SECTION: Philosophy / About                                           ║
+║                                                                        ║
+║  DESIGN: Asymmetric split layout with Japanese calligraphy on left     ║
+║  and English text on right. Creates visual interest and cultural       ║
+║  authenticity.                                                         ║
+╚════════════════════════════════════════════════════════════════════════╝ */
+.philosophy {
+position: relative;
+min-height: 100vh;
+display: flex;
+align-items: center;
+padding: var(--space-xl) var(--space-md);
+background: transparent; /* Background via ::before for kanji visibility */
+overflow: hidden;
+}
+/* Section background as pseudo-element - allows kanji to render above it */
+.philosophy::before {
+content: '';
+position: absolute;
+inset: 0;
+background-color: var(--color-black);
+z-index: 0;
+}
+.philosophy__container {
+position: relative;
+z-index: 20;  /* Above background kanji */
+max-width: var(--max-width);
+margin: 0 auto;
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: var(--space-xl);
+align-items: center;
+}
+.philosophy__left {
+position: relative;
+}
+.philosophy__kanji {
+font-family: var(--font-japanese);
+font-size: clamp(8rem, 20vw, 16rem);
+font-weight: 300;
+color: var(--color-gold);
+opacity: 0.15;
+line-height: 1;
+position: absolute;
+top: 50%;
+left: 50%;
+transform: translate(-50%, -50%);
+writing-mode: vertical-rl;
+}
+.philosophy__image-frame {
+position: relative;
+aspect-ratio: 3/4;
+overflow: hidden;
+}
+.philosophy__image-frame::before {
+content: '';
+position: absolute;
+top: -20px;
+right: -20px;
+width: 100%;
+height: 100%;
+border: 1px solid var(--color-gold);
+z-index: 1;
+}
+.philosophy__image {
+width: 100%;
+height: 100%;
+object-fit: cover;
+/* Display original colors - no grayscale filter */
+}
+.philosophy__right {
+padding-left: var(--space-lg);
+}
+.philosophy__label {
+font-family: var(--font-heading);
+font-size: 0.75rem;
+font-weight: 400;
+letter-spacing: 0.3em;
+text-transform: uppercase;
+color: var(--color-gold);
+margin-bottom: var(--space-sm);
+display: flex;
+align-items: center;
+gap: var(--space-sm);
+}
+.philosophy__label::before {
+content: '';
+width: 40px;
+height: 1px;
+background-color: var(--color-gold);
+}
+.philosophy__heading {
+font-family: var(--font-heading);
+font-size: clamp(2.5rem, 5vw, 4rem);
+font-weight: 300;
+line-height: 1.1;
+letter-spacing: -0.02em;
+color: var(--color-cream);
+margin-bottom: var(--space-md);
+}
+.philosophy__heading em {
+font-style: italic;
+color: var(--color-gold);
+}
+.philosophy__text {
+font-family: var(--font-body);
+font-size: 1rem;
+font-weight: 300;
+line-height: 1.8;
+color: var(--color-cream-dark);
+margin-bottom: var(--space-md);
+max-width: 480px;
+}
+.philosophy__signature {
+font-family: var(--font-japanese);
+font-size: 1.25rem;
+color: var(--color-gold);
+letter-spacing: 0.2em;
+}
+@media (max-width: 968px) {
+.philosophy__container {
+grid-template-columns: 1fr;
+gap: var(--space-lg);
+}
+.philosophy__right {
+padding-left: 0;
+}
+}
+/* ╔════════════════════════════════════════════════════════════════════════╗
+║  SECTION: Menu Highlights                                              ║
+║                                                                        ║
+║  DESIGN: Horizontal scroll gallery showcasing signature dishes.        ║
+║  Each card has a reveal animation and gold overlay on hover.           ║
+╚════════════════════════════════════════════════════════════════════════╝ */
+.menu {
+position: relative;
+padding: var(--space-xl) 0;
+/* Direct background color - more reliable than ::before for layout */
+background-color: var(--color-black-light);
+/* overflow: visible allows proper scroll behavior */
+}
+.menu__header {
+position: relative;
+z-index: 20;  /* Above background kanji */
+max-width: var(--max-width);
+margin: 0 auto;
+padding: 0 var(--space-md);
+margin-bottom: var(--space-lg);
+display: flex;
+justify-content: space-between;
+align-items: flex-end;
+}
+.menu__title-group {
+max-width: 600px;
+}
+.menu__label {
+font-family: var(--font-heading);
+font-size: 0.75rem;
+font-weight: 400;
+letter-spacing: 0.3em;
+text-transform: uppercase;
+color: var(--color-gold);
+margin-bottom: var(--space-sm);
+display: flex;
+align-items: center;
+gap: var(--space-sm);
+}
+.menu__label::before {
+content: '';
+width: 40px;
+height: 1px;
+background-color: var(--color-gold);
+}
+.menu__title {
+font-family: var(--font-heading);
+font-size: clamp(2rem, 4vw, 3.5rem);
+font-weight: 300;
+line-height: 1.1;
+letter-spacing: -0.02em;
+color: var(--color-cream);
+}
+.menu__view-all {
+font-family: var(--font-heading);
+font-size: 0.8rem;
+font-weight: 400;
+letter-spacing: 0.15em;
+text-transform: uppercase;
+color: var(--color-cream);
+text-decoration: none;
+display: flex;
+align-items: center;
+gap: var(--space-xs);
+transition: color 0.3s ease;
+}
+.menu__view-all:hover {
+color: var(--color-gold);
+}
+.menu__view-all svg {
+width: 20px;
+height: 20px;
+transition: transform 0.3s ease;
+}
+.menu__view-all:hover svg {
+transform: translateX(5px);
+}
+/* ═══════════════════════════════════════════════════════════════════════
+PINNED HORIZONTAL SCROLL CONTAINER
+TECHNIQUE: Vertical scroll is converted to horizontal movement.
+The section pins in place while user scrolls, and menu items
+move horizontally from right to left. This creates an immersive
+gallery experience without the scroll-blocking issues of native
+horizontal overflow.
+HOW IT WORKS:
+1. .menu pins when it enters viewport (via GSAP ScrollTrigger)
+2. Vertical scroll progress (0-1) maps to horizontal translateX
+3. Items move from right to left as user scrolls down
+4. Section unpins after all items are visible
+═══════════════════════════════════════════════════════════════════════ */
+.menu__scroll {
+position: relative;
+z-index: 20;  /* Above background kanji */
+display: flex;
+gap: var(--space-md);
+/* Align with centered header: (viewport - max-width)/2 + padding */
+padding-left: max(var(--space-md), calc((100vw - var(--max-width)) / 2 + var(--space-md)));
+padding-right: var(--space-md);
+/* GSAP controls horizontal movement - no native scroll */
+overflow: visible;
+will-change: transform;
+}
+.menu__item {
+flex: 0 0 auto;
+width: 350px;
+scroll-snap-align: start;
+position: relative;
+overflow: visible; /* Allow the fade effect to show */
+cursor: pointer;
+}
+/* Soft bottom edge fade - removes sharp rectangle edges
+Creates a smooth blend into the section background */
+.menu__item::after {
+content: '';
+position: absolute;
+bottom: -1px;
+left: 0;
+width: 100%;
+height: 80px;
+background: linear-gradient(
+to bottom,
+transparent 0%,
+rgba(20, 20, 20, 0.4) 30%,
+rgba(20, 20, 20, 0.8) 60%,
+var(--color-black-light) 100%
+);
+pointer-events: none;
+z-index: 5;
+}
+.menu__item-image {
+position: relative;
+aspect-ratio: 4/5;
+overflow: hidden;
+background-color: var(--color-black-lighter);
+border-radius: 2px; /* Subtle rounding */
+}
+.menu__item-image img {
+width: 100%;
+height: 100%;
+object-fit: cover;
+transition: transform 0.6s var(--ease-out-quart);
+/* Ensure image stays below overlay when transformed */
+position: relative;
+z-index: 1;
+}
+.menu__item:hover .menu__item-image img {
+transform: scale(1.05);
+}
+/* ═══════════════════════════════════════════════════════════════════════
+MENU ITEM ALPHA MASK
+Strong bottom-to-top gradient creates a "fade to black" effect
+that makes the white/gold text pop against any image background.
+The gradient covers 60% of the image for maximum text readability.
+z-index: 3 ensures it stays above the image (z-index: 1) even
+when the image is transformed/scaled on hover.
+═══════════════════════════════════════════════════════════════════════ */
+.menu__item-overlay {
+position: absolute;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+background: linear-gradient(
+to top,
+rgba(10, 10, 10, 0.95) 0%,
+rgba(10, 10, 10, 0.8) 20%,
+rgba(10, 10, 10, 0.5) 40%,
+rgba(10, 10, 10, 0.15) 60%,
+transparent 75%
+);
+z-index: 3;  /* Above image (z-index: 1) */
+pointer-events: none;  /* Allow hover to pass through to image */
+}
+.menu__item-content {
+position: absolute;
+bottom: 0;
+left: 0;
+width: 100%;
+padding: var(--space-md);
+padding-bottom: calc(var(--space-md) + 40px); /* Extra padding above the fade */
+z-index: 10; /* Above the bottom fade and image */
+pointer-events: none; /* Allow hover events to reach the image */
+}
+.menu__item-japanese {
+font-family: var(--font-japanese);
+font-size: 0.875rem;
+color: var(--color-gold);
+letter-spacing: 0.2em;
+margin-bottom: var(--space-xs);
+}
+.menu__item-name {
+font-family: var(--font-heading);
+font-size: 1.5rem;
+font-weight: 400;
+color: var(--color-cream);
+margin-bottom: var(--space-xs);
+}
+.menu__item-desc {
+font-family: var(--font-body);
+font-size: 0.875rem;
+font-weight: 300;
+color: var(--color-cream-dark);
+line-height: 1.6;
+}
+.menu__item-price {
+position: absolute;
+top: var(--space-sm);
+right: var(--space-sm);
+font-family: var(--font-heading);
+font-size: 0.875rem;
+font-weight: 400;
+color: var(--color-gold);
+background-color: rgba(10, 10, 10, 0.8);
+padding: var(--space-xs) var(--space-sm);
+letter-spacing: 0.1em;
+z-index: 3;
+}
+@media (max-width: 768px) {
+.menu__scroll {
+/* Native horizontal scroll on mobile */
+overflow-x: auto;
+overflow-y: hidden;
+scroll-snap-type: x proximity;
+-webkit-overflow-scrolling: touch;
+}
+.menu__item {
+width: 280px;
+}
+.menu__header {
+flex-direction: column;
+align-items: flex-start;
+gap: var(--space-sm);
+}
+}
+/* ╔════════════════════════════════════════════════════════════════════════╗
+║  SECTION: Experience / Features                                        ║
+║                                                                        ║
+║  DESIGN: Three column grid showcasing unique aspects of the            ║
+║  restaurant. Minimalist icons with descriptive text.                   ║
+╚════════════════════════════════════════════════════════════════════════╝ */
+.experience {
+position: relative;
+padding: var(--space-xl) var(--space-md);
+background: transparent; /* Background via ::before for kanji visibility */
+}
+/* Section background as pseudo-element */
+.experience::before {
+content: '';
+position: absolute;
+inset: 0;
+background-color: var(--color-black);
+z-index: 0;
+}
+.experience__container {
+position: relative;
+z-index: 20;  /* Above background kanji */
+max-width: var(--max-width);
+margin: 0 auto;
+}
+.experience__header {
+text-align: center;
+margin-bottom: var(--space-xl);
+}
+.experience__label {
+font-family: var(--font-heading);
+font-size: 0.75rem;
+font-weight: 400;
+letter-spacing: 0.3em;
+text-transform: uppercase;
+color: var(--color-gold);
+margin-bottom: var(--space-sm);
+}
+.experience__title {
+font-family: var(--font-heading);
+font-size: clamp(2rem, 4vw, 3rem);
+font-weight: 300;
+color: var(--color-cream);
+letter-spacing: -0.02em;
+}
+.experience__grid {
+display: grid;
+grid-template-columns: repeat(3, 1fr);
+gap: var(--space-lg);
+}
+.experience__item {
+text-align: center;
+padding: var(--space-lg);
+border: 1px solid transparent;
+transition: border-color 0.3s ease;
+/* Required for hover effect */
+position: relative;
+overflow: hidden;
+background-color: var(--color-black);
+}
+/* ═══════════════════════════════════════════════════════════════════════
+EXPERIENCE CARD HOVER EFFECT: Seigaiha Wave Pattern with Spotlight
+TECHNIQUE: Two pseudo-elements layered:
+1. ::before - Contains the Seigaiha pattern (traditional Japanese waves)
+2. ::after - Radial gradient mask that follows cursor position
+The pattern is always there but masked. On hover, the spotlight
+reveals the pattern where the cursor moves.
+TO SWAP EFFECTS: Change the background-image in ::before
+See alternative patterns commented below.
+═══════════════════════════════════════════════════════════════════════ */
+/* Pattern layer - Seigaiha (traditional wave pattern) */
+.experience__item::before {
+content: '';
+position: absolute;
+inset: 0;
+/* Seigaiha wave pattern in gold */
+background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='40'%3E%3Cpath d='M0 20 Q20 0 40 20 Q60 40 80 20' fill='none' stroke='%23c9a962' stroke-width='0.5' opacity='0.6'/%3E%3Cpath d='M-40 20 Q-20 0 0 20 Q20 40 40 20' fill='none' stroke='%23c9a962' stroke-width='0.5' opacity='0.6'/%3E%3Cpath d='M40 20 Q60 0 80 20 Q100 40 120 20' fill='none' stroke='%23c9a962' stroke-width='0.5' opacity='0.6'/%3E%3Cpath d='M0 40 Q20 20 40 40 Q60 60 80 40' fill='none' stroke='%23c9a962' stroke-width='0.5' opacity='0.6'/%3E%3Cpath d='M-40 40 Q-20 20 0 40 Q20 60 40 40' fill='none' stroke='%23c9a962' stroke-width='0.5' opacity='0.6'/%3E%3Cpath d='M40 40 Q60 20 80 40 Q100 60 120 40' fill='none' stroke='%23c9a962' stroke-width='0.5' opacity='0.6'/%3E%3C/svg%3E");
+background-size: 80px 40px;
+opacity: 0;
+/* Fast fade-out so pattern disappears before mask */
+transition: opacity 0.1s ease;
+pointer-events: none;
+z-index: 1;
+/* ═══════════════════════════════════════════════════════════════════
+ALTERNATIVE PATTERNS (uncomment to swap):
+OPTION 2: Asanoha (Hemp Leaf) geometric pattern
+background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Cpath d='M12 0L24 12L12 24L0 12Z M12 6L18 12L12 18L6 12Z' fill='none' stroke='%23c9a962' stroke-width='0.3' opacity='0.5'/%3E%3C/svg%3E");
+background-size: 24px 24px;
+OPTION 3: Gold Foil Texture
+background: linear-gradient(135deg, rgba(201,169,98,0.15) 0%, rgba(201,169,98,0.05) 50%, rgba(201,169,98,0.2) 100%);
+OPTION 4: Dot Grid
+background-image: radial-gradient(circle, rgba(201,169,98,0.4) 1px, transparent 1px);
+background-size: 16px 16px;
+OPTION 5: Diagonal Lines
+background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(201,169,98,0.1) 10px, rgba(201,169,98,0.1) 11px);
+═══════════════════════════════════════════════════════════════════ */
+}
+/* Spotlight mask - follows cursor via CSS custom properties set by JS */
+.experience__item::after {
+content: '';
+position: absolute;
+inset: 0;
+background: radial-gradient(
+circle 120px at var(--mouse-x, 50%) var(--mouse-y, 50%),
+transparent 0%,
+rgba(10, 10, 10, 0.97) 100%
+);
+opacity: 0;
+transition: opacity 0.3s ease;
+pointer-events: none;
+z-index: 2;
+}
+/* Show pattern and spotlight on hover
+ASYMMETRIC TRANSITIONS:
+- Enter: mask appears fast (0.1s), pattern appears with delay (waits for mask)
+- Leave: pattern disappears fast (0.1s), mask lingers (0.3s)
+*/
+.experience__item:hover::before {
+opacity: 1;
+/* Slow fade-in with delay so mask is in place first */
+transition: opacity 0.3s ease 0.1s;
+}
+.experience__item:hover::after {
+opacity: 1;
+/* Fast fade-in so mask appears before pattern */
+transition: opacity 0.1s ease;
+}
+.experience__item:hover {
+border-color: var(--color-gold);
+}
+/* Ensure content stays above the effect layers */
+.experience__icon {
+font-family: var(--font-japanese);
+font-size: 3rem;
+color: var(--color-gold);
+margin-bottom: var(--space-md);
+display: block;
+position: relative;
+z-index: 3;
+}
+.experience__item-title {
+font-family: var(--font-heading);
+font-size: 1.25rem;
+font-weight: 400;
+color: var(--color-cream);
+margin-bottom: var(--space-sm);
+letter-spacing: 0.05em;
+position: relative;
+z-index: 3;
+}
+.experience__item-text {
+font-family: var(--font-body);
+font-size: 0.875rem;
+font-weight: 300;
+color: var(--color-cream-dark);
+line-height: 1.7;
+position: relative;
+z-index: 3;
+}
+@media (max-width: 768px) {
+.experience__grid {
+grid-template-columns: 1fr;
+gap: var(--space-md);
+}
+}
+/* ╔════════════════════════════════════════════════════════════════════════╗
+║  SECTION: Chef / Story                                                 ║
+║                                                                        ║
+║  DESIGN: Full-width image with parallax effect and floating quote      ║
+║  card. Creates an emotional connection with the craftsman.             ║
+╚════════════════════════════════════════════════════════════════════════╝ */
+.chef {
+position: relative;
+min-height: 100vh;
+display: flex;
+align-items: center;
+overflow: hidden;
+}
+.chef__background {
+position: absolute;
+top: 0;
+left: 0;
+width: 100%;
+height: 120%;
+background: linear-gradient(135deg,
+var(--color-black-light) 0%,
+var(--color-black) 100%);
+z-index: 0;  /* Below kanji (z-index: 5) */
+}
+.chef__image {
+position: absolute;
+top: -10%;
+left: 0;
+width: 60%;
+height: 120%;
+object-fit: cover;
+opacity: 0.7;
+filter: grayscale(40%);
+z-index: 1;  /* Above background, below kanji */
+}
+.chef__overlay {
+position: absolute;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+background: linear-gradient(
+to right,
+rgba(10, 10, 10, 0) 0%,
+rgba(10, 10, 10, 0.8) 40%,
+rgba(10, 10, 10, 1) 70%
+);
+z-index: 2;  /* Above image, below kanji */
+}
+.chef__content {
+position: relative;
+z-index: 20;  /* Above background kanji */
+max-width: var(--max-width);
+margin: 0 auto;
+padding: var(--space-xl) var(--space-md);
+display: flex;
+justify-content: flex-end;
+}
+.chef__card {
+max-width: 500px;
+padding: var(--space-lg);
+background-color: rgba(10, 10, 10, 0.6);
+backdrop-filter: blur(10px);
+border: 1px solid rgba(201, 169, 98, 0.2);
+}
+.chef__label {
+font-family: var(--font-heading);
+font-size: 0.75rem;
+font-weight: 400;
+letter-spacing: 0.3em;
+text-transform: uppercase;
+color: var(--color-gold);
+margin-bottom: var(--space-md);
+}
+.chef__quote {
+font-family: var(--font-heading);
+font-size: clamp(1.5rem, 3vw, 2rem);
+font-weight: 300;
+font-style: italic;
+line-height: 1.5;
+color: var(--color-cream);
+margin-bottom: var(--space-md);
+}
+.chef__quote::before {
+content: '"';
+font-size: 4rem;
+line-height: 0;
+vertical-align: -0.4em;
+color: var(--color-gold);
+margin-right: var(--space-xs);
+}
+.chef__name {
+font-family: var(--font-heading);
+font-size: 1rem;
+font-weight: 400;
+color: var(--color-cream);
+margin-bottom: var(--space-xs);
+}
+.chef__title {
+font-family: var(--font-body);
+font-size: 0.875rem;
+font-weight: 300;
+color: var(--color-cream-dark);
+}
+.chef__kanji {
+font-family: var(--font-japanese);
+font-size: 8rem;
+font-weight: 300;
+color: var(--color-gold);
+opacity: 0.1;
+position: absolute;
+bottom: var(--space-md);
+right: var(--space-md);
+line-height: 1;
+}
+@media (max-width: 768px) {
+.chef {
+min-height: auto;
+padding: var(--space-lg) 0;
+}
+.chef__content {
+justify-content: center;
+padding: var(--space-md);
+}
+.chef__card {
+max-width: 100%;
+padding: var(--space-md);
+}
+.chef__kanji {
+font-size: 5rem;
+right: var(--space-sm);
+bottom: var(--space-sm);
+}
+}
+/* ╔════════════════════════════════════════════════════════════════════════╗
+║  SECTION: Reservation CTA                                              ║
+║                                                                        ║
+║  DESIGN: Clean, minimal form design with gold accents.                 ║
+║  Focus on the call to action with elegant input styling.               ║
+╚════════════════════════════════════════════════════════════════════════╝ */
+.reservation {
+position: relative;
+padding: var(--space-2xl) var(--space-md);
+background: transparent; /* Background via ::before for kanji visibility */
+text-align: center;
+}
+/* Section background as pseudo-element */
+.reservation::before {
+content: '';
+position: absolute;
+inset: 0;
+background-color: var(--color-black-light);
+z-index: 0;
+}
+.reservation__container {
+position: relative;
+z-index: 20;  /* Above background kanji */
+max-width: 600px;
+margin: 0 auto;
+}
+.reservation__kanji {
+font-family: var(--font-japanese);
+font-size: 6rem;
+font-weight: 300;
+color: var(--color-gold);
+opacity: 0.15;
+margin-bottom: var(--space-sm);
+}
+.reservation__label {
+font-family: var(--font-heading);
+font-size: 0.75rem;
+font-weight: 400;
+letter-spacing: 0.3em;
+text-transform: uppercase;
+color: var(--color-gold);
+margin-bottom: var(--space-sm);
+}
+.reservation__title {
+font-family: var(--font-heading);
+font-size: clamp(2rem, 4vw, 3rem);
+font-weight: 300;
+color: var(--color-cream);
+margin-bottom: var(--space-sm);
+letter-spacing: -0.02em;
+}
+.reservation__subtitle {
+font-family: var(--font-body);
+font-size: 1rem;
+font-weight: 300;
+color: var(--color-cream-dark);
+margin-bottom: var(--space-lg);
+line-height: 1.7;
+}
+.reservation__form {
+display: flex;
+flex-direction: column;
+gap: var(--space-sm);
+}
+.reservation__row {
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: var(--space-sm);
+}
+.reservation__input {
+width: 100%;
+padding: var(--space-sm);
+font-family: var(--font-body);
+font-size: 0.875rem;
+font-weight: 300;
+color: var(--color-cream);
+background-color: transparent;
+border: 1px solid rgba(201, 169, 98, 0.3);
+outline: none;
+transition: border-color 0.3s ease;
+}
+.reservation__input::placeholder {
+color: var(--color-cream-dark);
+}
+.reservation__input:focus {
+border-color: var(--color-gold);
+}
+.reservation__button {
+margin-top: var(--space-sm);
+padding: var(--space-sm) var(--space-lg);
+font-family: var(--font-heading);
+font-size: 0.875rem;
+font-weight: 400;
+letter-spacing: 0.2em;
+text-transform: uppercase;
+color: var(--color-black);
+background-color: var(--color-gold);
+border: none;
+cursor: pointer;
+transition: all 0.3s var(--ease-out-quart);
+position: relative;
+overflow: hidden;
+}
+.reservation__button:hover {
+background-color: var(--color-gold-light);
+transform: translateY(-2px);
+}
+.reservation__button::after {
+content: '';
+position: absolute;
+top: 50%;
+left: 50%;
+width: 0;
+height: 0;
+background-color: rgba(255, 255, 255, 0.2);
+border-radius: 50%;
+transform: translate(-50%, -50%);
+transition: width 0.6s ease, height 0.6s ease;
+}
+.reservation__button:active::after {
+width: 300px;
+height: 300px;
+}
+@media (max-width: 576px) {
+.reservation__row {
+grid-template-columns: 1fr;
+}
+.reservation__kanji {
+font-size: 4rem;
+}
+.reservation__container {
+padding: 0 var(--space-sm);
+}
+}
+/* ╔════════════════════════════════════════════════════════════════════════╗
+║  SECTION: Footer                                                       ║
+║                                                                        ║
+║  DESIGN: Minimal footer with contact info and social links.            ║
+║  Japanese characters as decorative background element.                 ║
+╚════════════════════════════════════════════════════════════════════════╝ */
+.footer {
+position: relative;
+padding: var(--space-lg) var(--space-md) var(--space-md);
+background-color: var(--color-black); /* Solid background to cover kanji */
+border-top: 1px solid rgba(201, 169, 98, 0.2);
+overflow: hidden;
+z-index: 10; /* Above background kanji */
+}
+/* Section background as pseudo-element */
+.footer::before {
+content: '';
+position: absolute;
+inset: 0;
+background-color: var(--color-black);
+z-index: 0;
+}
+.footer__kanji {
+font-family: var(--font-japanese);
+font-size: 12rem;
+font-weight: 300;
+color: var(--color-gold);
+opacity: 0.03;
+position: absolute;
+top: 0;
+right: 2%;
+line-height: 1;
+pointer-events: none;
+}
+.footer__container {
+position: relative;
+z-index: 20;  /* Above background kanji */
+max-width: var(--max-width);
+margin: 0 auto;
+display: grid;
+grid-template-columns: 2fr 1fr 1fr 1fr;
+gap: var(--space-lg);
+}
+.footer__brand {
+max-width: 300px;
+}
+.footer__logo {
+font-family: var(--font-japanese);
+font-size: 2rem;
+color: var(--color-gold);
+margin-bottom: var(--space-xs);
+}
+.footer__logo-en {
+font-family: var(--font-heading);
+font-size: 0.75rem;
+font-weight: 300;
+letter-spacing: 0.3em;
+text-transform: uppercase;
+color: var(--color-cream);
+margin-bottom: var(--space-md);
+}
+.footer__tagline {
+font-family: var(--font-body);
+font-size: 0.875rem;
+font-weight: 300;
+color: var(--color-cream-dark);
+line-height: 1.7;
+}
+.footer__col-title {
+font-family: var(--font-heading);
+font-size: 0.75rem;
+font-weight: 400;
+letter-spacing: 0.2em;
+text-transform: uppercase;
+color: var(--color-gold);
+margin-bottom: var(--space-md);
+}
+.footer__links {
+list-style: none;
+}
+.footer__link {
+font-family: var(--font-body);
+font-size: 0.875rem;
+font-weight: 300;
+color: var(--color-cream-dark);
+text-decoration: none;
+display: block;
+margin-bottom: var(--space-xs);
+transition: color 0.3s ease;
+}
+.footer__link:hover {
+color: var(--color-gold);
+}
+.footer__contact-item {
+font-family: var(--font-body);
+font-size: 0.875rem;
+font-weight: 300;
+color: var(--color-cream-dark);
+margin-bottom: var(--space-xs);
+line-height: 1.6;
+}
+.footer__social {
+display: flex;
+gap: var(--space-sm);
+margin-top: var(--space-md);
+}
+.footer__social-link {
+width: 40px;
+height: 40px;
+display: flex;
+align-items: center;
+justify-content: center;
+border: 1px solid rgba(201, 169, 98, 0.3);
+color: var(--color-cream);
+text-decoration: none;
+transition: all 0.3s ease;
+}
+.footer__social-link:hover {
+border-color: var(--color-gold);
+color: var(--color-gold);
+}
+.footer__bottom {
+position: relative;
+z-index: 2;
+max-width: var(--max-width);
+margin: var(--space-lg) auto 0;
+padding-top: var(--space-md);
+border-top: 1px solid rgba(201, 169, 98, 0.1);
+display: flex;
+justify-content: space-between;
+align-items: center;
+}
+.footer__copyright {
+font-family: var(--font-body);
+font-size: 0.75rem;
+font-weight: 300;
+color: var(--color-cream-dark);
+}
+.footer__legal {
+display: flex;
+gap: var(--space-md);
+}
+.footer__legal-link {
+font-family: var(--font-body);
+font-size: 0.75rem;
+font-weight: 300;
+color: var(--color-cream-dark);
+text-decoration: none;
+transition: color 0.3s ease;
+}
+.footer__legal-link:hover {
+color: var(--color-gold);
+}
+@media (max-width: 968px) {
+.footer__container {
+grid-template-columns: 1fr 1fr;
+}
+.footer__brand {
+grid-column: span 2;
+}
+.footer__kanji {
+font-size: 8rem;
+}
+}
+@media (max-width: 576px) {
+.footer__container {
+grid-template-columns: 1fr;
+}
+.footer__brand {
+grid-column: span 1;
+}
+.footer__bottom {
+flex-direction: column;
+gap: var(--space-sm);
+text-align: center;
+}
+.footer__kanji {
+font-size: 5rem;
+}
+}
+/* ╔════════════════════════════════════════════════════════════════════════╗
+║  SECTION: Animation Utilities                                          ║
+║                                                                        ║
+║  WHY: These classes are applied by GSAP ScrollTrigger to animate       ║
+║  elements as they enter the viewport. Starting state is defined here.  ║
+╚════════════════════════════════════════════════════════════════════════╝ */
+.reveal {
+opacity: 0;
+transform: translateY(40px);
+}
+.reveal-left {
+opacity: 0;
+transform: translateX(-40px);
+}
+.reveal-right {
+opacity: 0;
+transform: translateX(40px);
+}
+.reveal-scale {
+opacity: 0;
+transform: scale(0.95);
+}
+/* Line reveal animation for text */
+.line-reveal {
+overflow: hidden;
+}
+.line-reveal span {
+display: inline-block;
+transform: translateY(100%);
+}
+/* ╔════════════════════════════════════════════════════════════════════════╗
+║  SECTION: Background Kanji (Scrolling Text)                            ║
+║                                                                        ║
+║  WHY: Subtle Japanese characters in the background add cultural        ║
+║  authenticity. Unlike a fixed overlay, this scrolls WITH the page      ║
+║  like text in a book - revealing naturally as you read down.           ║
+║                                                                        ║
+║  TECHNIQUE: Absolute positioning within a wrapper that contains all    ║
+║  content sections. The text is placed once and scrolls naturally.      ║
+║  Now with clip-path animation for scroll-reveal effect.                ║
+╚════════════════════════════════════════════════════════════════════════╝ */
+.main-content {
+position: relative;
+z-index: 1;  /* Creates stacking context for all children */
+}
+/* Background kanji - positioned ABOVE section ::before backgrounds
+but BELOW section content. Creates a watermark effect.
+STACKING ORDER (within .main-content):
+- Section ::before backgrounds: z-index: 0
+- Background kanji: z-index: 5
+- Section content containers: z-index: 20
+POSITIONING: width: fit-content shrinks the box to text width,
+then right: 20px positions it from the viewport right edge */
+.background-kanji {
+position: absolute;
+top: 0;
+right: 20px;
+width: fit-content;
+height: 0;  /* Start with 0 height, animated by JS */
+overflow: hidden;
+pointer-events: none;
+z-index: 5;  /* Between section backgrounds (0) and content (20) */
+}
+.background-kanji__text {
+font-family: var(--font-japanese);
+font-size: 4rem;
+font-weight: 300;
+color: var(--color-gold);
+opacity: 0.12;
+writing-mode: vertical-rl;
+text-orientation: mixed;
+letter-spacing: 0.05em;
+line-height: 1.2;
+white-space: nowrap;
+display: block;
+}
+/* Adjust on medium screens */
+@media (max-width: 1200px) {
+.background-kanji {
+right: 15px;
+}
+.background-kanji__text {
+font-size: 3rem;
+}
+}
+/* Hide on smaller screens for cleaner experience */
+@media (max-width: 768px) {
+.background-kanji {
+display: none;
+}
+}
+/* ╔════════════════════════════════════════════════════════════════════════╗
+║  SECTION: Grain Overlay                                                ║
+║                                                                        ║
+║  WHY: Subtle film grain adds texture and a premium analog feel.        ║
+║  The noise is generated via CSS and animated for a dynamic effect.     ║
+╚════════════════════════════════════════════════════════════════════════╝ */
+.grain {
+position: fixed;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+opacity: 0.03;
+pointer-events: none;
+z-index: 9997;
+/* Static grain - no animation to prevent shadow artifacts */
+}
+
+/* -------------------------------------------------------------------------- */
+/* Burger-only content helpers (layout preserved)                             */
+/* -------------------------------------------------------------------------- */
+.menu__item-meta {
+margin-top: var(--space-sm);
+display: flex;
+justify-content: space-between;
+align-items: center;
+gap: var(--space-sm);
+}
+
+.menu__item-tags {
+display: flex;
+flex-wrap: wrap;
+gap: 0.35rem;
+}
+
+.menu__item-tag {
+font-family: var(--font-body);
+font-size: 0.65rem;
+letter-spacing: 0.08em;
+text-transform: uppercase;
+color: var(--color-gold-light);
+border: 1px solid rgba(201, 169, 98, 0.35);
+padding: 0.2rem 0.4rem;
+}
+
+.menu__item-calories {
+font-family: var(--font-body);
+font-size: 0.7rem;
+color: var(--color-cream-dark);
+white-space: nowrap;
+}
+
+.title-inline-dot {
+display: inline-flex;
+align-items: center;
+justify-content: center;
+width: clamp(2.1rem, 3.2vw, 2.9rem);
+height: clamp(2.1rem, 3.2vw, 2.9rem);
+margin: 0 0.24em;
+border-radius: 50%;
+overflow: hidden;
+border: 1px solid rgba(201, 169, 98, 0.55);
+box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+vertical-align: middle;
+transform: translateY(-0.08em);
+}
+
+.title-inline-dot img {
+width: 100%;
+height: 100%;
+object-fit: cover;
+display: block;
+}
+
+.underline-reveal {
+position: relative;
+display: inline-block;
+padding-bottom: 0.06em;
+}
+
+.underline-reveal::after {
+content: "";
+position: absolute;
+left: 0;
+bottom: 0;
+width: 100%;
+height: 2px;
+background: linear-gradient(90deg, rgba(201, 169, 98, 0.15) 0%, rgba(201, 169, 98, 0.98) 55%, rgba(201, 169, 98, 0.15) 100%);
+transform: scaleX(0);
+transform-origin: left center;
+transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.underline-reveal.is-active::after {
+transform: scaleX(1);
+}
+
+.ingredients,
+.testimonials {
+position: relative;
+padding: var(--space-xl) var(--space-md);
+background-color: var(--color-black);
+overflow: hidden;
+}
+
+.ingredients::before,
+.testimonials::before {
+content: "";
+position: absolute;
+inset: 0;
+background:
+repeating-linear-gradient(
+90deg,
+rgba(201, 169, 98, 0.05) 0px,
+rgba(201, 169, 98, 0.05) 1px,
+transparent 1px,
+transparent 42px
+),
+repeating-linear-gradient(
+90deg,
+rgba(201, 169, 98, 0.025) 0px,
+rgba(201, 169, 98, 0.025) 12px,
+transparent 12px,
+transparent 90px
+);
+z-index: 0;
+opacity: 0.28;
+pointer-events: none;
+}
+
+.ingredients::after,
+.testimonials::after {
+content: "";
+position: absolute;
+inset: 0;
+background:
+radial-gradient(circle at 50% 0%, rgba(201, 169, 98, 0.08), transparent 55%),
+linear-gradient(to bottom, rgba(10, 10, 10, 0) 0%, rgba(10, 10, 10, 0.55) 100%);
+opacity: 0.45;
+z-index: 0;
+pointer-events: none;
+}
+
+.ingredients__container {
+position: relative;
+z-index: 20;
+max-width: var(--max-width);
+margin: 0 auto;
+}
+
+.ingredients__header {
+margin-bottom: var(--space-lg);
+text-align: center;
+position: relative;
+}
+
+.ingredients__label {
+font-family: var(--font-heading);
+font-size: 0.75rem;
+letter-spacing: 0.2em;
+text-transform: uppercase;
+color: var(--color-gold);
+display: block;
+margin-bottom: var(--space-sm);
+}
+
+.ingredients__title {
+font-family: var(--font-heading);
+font-size: clamp(2rem, 4vw, 3.25rem);
+font-weight: 400;
+line-height: 1.2;
+color: var(--color-cream);
+text-shadow: 0 12px 30px rgba(10, 10, 10, 0.55);
+}
+
+.ingredients__grid {
+display: grid;
+grid-template-columns: repeat(4, 1fr);
+gap: var(--space-sm);
+}
+
+.ingredients__item {
+background: rgba(10, 10, 10, 0.86);
+border: 1px solid rgba(201, 169, 98, 0.2);
+padding: var(--space-md);
+transition: border-color 0.3s ease, transform 0.3s ease;
+position: relative;
+overflow: hidden;
+}
+
+.ingredients__item::before {
+content: "";
+position: absolute;
+inset: 0;
+background: repeating-linear-gradient(
+90deg,
+rgba(201, 169, 98, 0.04) 0px,
+rgba(201, 169, 98, 0.04) 1px,
+transparent 1px,
+transparent 24px
+);
+opacity: 0.16;
+pointer-events: none;
+}
+
+.ingredients__item:hover {
+border-color: rgba(201, 169, 98, 0.6);
+transform: translateY(-4px);
+}
+
+.ingredients__icon {
+font-family: var(--font-heading);
+font-size: 1rem;
+letter-spacing: 0.12em;
+color: var(--color-gold);
+display: block;
+margin-bottom: var(--space-sm);
+}
+
+.ingredients__item-title {
+font-family: var(--font-heading);
+font-size: 1.35rem;
+font-weight: 400;
+color: var(--color-cream);
+margin-bottom: var(--space-xs);
+}
+
+.ingredients__item-text {
+font-family: var(--font-body);
+font-size: 0.9rem;
+color: var(--color-cream-dark);
+line-height: 1.7;
+}
+
+.testimonials__container {
+position: relative;
+z-index: 20;
+max-width: var(--max-width);
+margin: 0 auto;
+}
+
+.testimonials__header {
+max-width: 700px;
+margin: 0 auto var(--space-lg);
+text-align: center;
+position: relative;
+}
+
+.testimonials__label {
+font-family: var(--font-heading);
+font-size: 0.75rem;
+letter-spacing: 0.2em;
+text-transform: uppercase;
+color: var(--color-gold);
+display: block;
+margin-bottom: var(--space-sm);
+}
+
+.testimonials__title {
+font-family: var(--font-heading);
+font-size: clamp(2rem, 4vw, 3.25rem);
+font-weight: 400;
+line-height: 1.2;
+color: var(--color-cream);
+margin-bottom: var(--space-sm);
+text-shadow: 0 12px 30px rgba(10, 10, 10, 0.55);
+}
+
+.testimonials__note {
+font-family: var(--font-body);
+font-size: 0.85rem;
+color: var(--color-cream-dark);
+letter-spacing: 0.02em;
+}
+
+.ingredients__header::after,
+.testimonials__header::after {
+content: "";
+display: block;
+width: 90px;
+height: 1px;
+margin: var(--space-sm) auto 0;
+background: linear-gradient(90deg, transparent 0%, var(--color-gold) 50%, transparent 100%);
+opacity: 0.8;
+}
+
+.testimonials__grid {
+display: grid;
+grid-template-columns: repeat(3, 1fr);
+gap: var(--space-sm);
+mask-image: linear-gradient(to right, transparent 0%, black 6%, black 94%, transparent 100%);
+}
+
+.testimonials__track {
+display: flex;
+width: max-content;
+gap: var(--space-sm);
+animation: testimonials-scroll 68s linear infinite;
+will-change: transform;
+}
+
+/* Keep marquee moving even on hover */
+.testimonials__grid:hover .testimonials__track {
+animation-play-state: running !important;
+}
+
+.testimonials__card {
+background: rgba(10, 10, 10, 0.85);
+border: 1px solid rgba(201, 169, 98, 0.2);
+padding: var(--space-md);
+min-height: 250px;
+display: flex;
+flex-direction: column;
+justify-content: space-between;
+width: min(420px, 80vw);
+position: relative;
+overflow: hidden;
+}
+
+.testimonials__card::before {
+content: "";
+position: absolute;
+inset: 0;
+background: repeating-linear-gradient(
+90deg,
+rgba(201, 169, 98, 0.045) 0px,
+rgba(201, 169, 98, 0.045) 1px,
+transparent 1px,
+transparent 24px
+);
+opacity: 0.14;
+pointer-events: none;
+}
+
+.testimonials__top {
+display: flex;
+align-items: center;
+justify-content: space-between;
+gap: var(--space-xs);
+margin-bottom: var(--space-sm);
+}
+
+.testimonials__rating {
+font-size: 0.95rem;
+letter-spacing: 0.18em;
+color: var(--color-gold);
+margin-bottom: 0;
+}
+
+.testimonials__source {
+font-family: var(--font-body);
+font-size: 0.68rem;
+text-transform: uppercase;
+letter-spacing: 0.12em;
+padding: 0.22rem 0.48rem;
+border-radius: 999px;
+border: 1px solid rgba(201, 169, 98, 0.35);
+background: rgba(10, 10, 10, 0.66);
+color: var(--color-cream);
+white-space: nowrap;
+}
+
+.testimonials__source--google {
+border-color: rgba(66, 133, 244, 0.55);
+box-shadow: 0 0 0 1px rgba(66, 133, 244, 0.15) inset;
+}
+
+.testimonials__source--tripadvisor {
+border-color: rgba(52, 201, 119, 0.55);
+box-shadow: 0 0 0 1px rgba(52, 201, 119, 0.15) inset;
+}
+
+.testimonials__photo-wrap {
+position: relative;
+width: 100%;
+aspect-ratio: 4 / 5;
+margin-bottom: var(--space-sm);
+padding: 0.3rem;
+border-radius: 1rem;
+overflow: hidden;
+border: 1px solid rgba(201, 169, 98, 0.28);
+background:
+linear-gradient(140deg, rgba(255, 255, 255, 0.96) 0%, rgba(236, 236, 236, 0.94) 100%);
+box-shadow: 0 16px 34px rgba(0, 0, 0, 0.45);
+}
+
+.testimonials__photo-wrap::after {
+content: "";
+position: absolute;
+inset: 0;
+background: linear-gradient(to top, rgba(10, 10, 10, 0.42) 0%, rgba(10, 10, 10, 0) 65%);
+pointer-events: none;
+}
+
+.testimonials__photo {
+width: 100%;
+height: 100%;
+object-fit: cover;
+display: block;
+border-radius: 0.78rem;
+filter: saturate(1.02) contrast(1.03);
+}
+
+.testimonials__card:nth-child(3n + 1) .testimonials__photo-wrap {
+transform: rotate(-1.35deg);
+}
+
+.testimonials__card:nth-child(3n + 2) .testimonials__photo-wrap {
+transform: rotate(1.2deg);
+}
+
+.testimonials__card:nth-child(3n + 3) .testimonials__photo-wrap {
+transform: rotate(-0.85deg);
+}
+
+.testimonials__text {
+font-family: var(--font-body);
+font-size: 0.95rem;
+line-height: 1.8;
+color: var(--color-cream);
+margin-bottom: var(--space-md);
+}
+
+.testimonials__meta {
+display: flex;
+flex-direction: column;
+gap: 0.15rem;
+}
+
+.testimonials__name {
+font-family: var(--font-heading);
+font-size: 1rem;
+color: var(--color-gold-light);
+}
+
+.testimonials__city,
+.testimonials__date {
+font-family: var(--font-body);
+font-size: 0.8rem;
+color: var(--color-cream-dark);
+}
+
+.testimonials__card {
+animation: card-float 6s ease-in-out infinite;
+}
+
+.testimonials__card:nth-child(2n) {
+animation-delay: 1.4s;
+}
+
+.testimonials__card:nth-child(3n) {
+animation-delay: 2.8s;
+}
+
+.creations {
+position: relative;
+padding: var(--space-xl) var(--space-md);
+background-color: var(--color-black-light);
+overflow: hidden;
+}
+
+.creations::before {
+content: "";
+position: absolute;
+inset: 0;
+background:
+radial-gradient(circle at 15% 20%, rgba(201, 169, 98, 0.12), transparent 42%),
+radial-gradient(circle at 85% 80%, rgba(201, 169, 98, 0.08), transparent 38%);
+z-index: 0;
+}
+
+.creations__container {
+position: relative;
+z-index: 20;
+max-width: var(--max-width);
+margin: 0 auto;
+}
+
+.creations__header {
+max-width: 780px;
+margin: 0 auto var(--space-lg);
+text-align: center;
+}
+
+.creations__label {
+font-family: var(--font-heading);
+font-size: 0.75rem;
+letter-spacing: 0.2em;
+text-transform: uppercase;
+color: var(--color-gold);
+display: block;
+margin-bottom: var(--space-sm);
+}
+
+.creations__title {
+font-family: var(--font-heading);
+font-size: clamp(2rem, 4vw, 3.3rem);
+font-weight: 400;
+line-height: 1.2;
+color: var(--color-cream);
+margin-bottom: var(--space-sm);
+}
+
+.creations__note {
+font-family: var(--font-body);
+font-size: 0.9rem;
+color: var(--color-cream-dark);
+line-height: 1.7;
+}
+
+.creations__grid {
+display: grid;
+grid-template-columns: repeat(3, 1fr);
+gap: var(--space-md);
+}
+
+.creations__card {
+background: rgba(10, 10, 10, 0.85);
+border: 1px solid rgba(201, 169, 98, 0.2);
+overflow: hidden;
+transition: transform 0.35s var(--ease-out-quart), border-color 0.35s ease;
+}
+
+.creations__card:hover {
+transform: translateY(-8px);
+border-color: rgba(201, 169, 98, 0.55);
+}
+
+.creations__image-wrap {
+position: relative;
+height: 360px;
+overflow: hidden;
+}
+
+.creations__image {
+width: 100%;
+height: 100%;
+object-fit: cover;
+transition: transform 0.7s var(--ease-out-quart);
+}
+
+.creations__card:hover .creations__image {
+transform: scale(1.08);
+}
+
+.creations__price {
+position: absolute;
+right: var(--space-sm);
+bottom: var(--space-sm);
+padding: 0.35rem 0.7rem;
+background: rgba(10, 10, 10, 0.8);
+border: 1px solid rgba(201, 169, 98, 0.35);
+font-family: var(--font-heading);
+font-size: 0.9rem;
+letter-spacing: 0.08em;
+color: var(--color-gold-light);
+}
+
+.creations__content {
+padding: var(--space-md);
+}
+
+.creations__name {
+font-family: var(--font-heading);
+font-size: 1.5rem;
+font-weight: 400;
+color: var(--color-cream);
+margin-bottom: 0.35rem;
+}
+
+.creations__subtitle {
+font-family: var(--font-body);
+font-size: 0.9rem;
+color: var(--color-cream-dark);
+line-height: 1.7;
+}
+
+.footer__creator {
+opacity: 0.85;
+}
+
+.footer__contact-item {
+white-space: pre-line;
+}
+
+@media (max-width: 1100px) {
+.ingredients__grid {
+grid-template-columns: repeat(2, 1fr);
+}
+
+.testimonials__grid {
+grid-template-columns: repeat(2, 1fr);
+}
+
+.creations__grid {
+grid-template-columns: repeat(2, 1fr);
+}
+}
+
+/* -------------------------------------------------------------------------- */
+/* Accessibility                                                              */
+/* -------------------------------------------------------------------------- */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible {
+outline: 2px solid var(--color-gold);
+outline-offset: 2px;
+}
+
+@media (max-width: 768px) {
+.title-inline-dot {
+width: 1.8rem;
+height: 1.8rem;
+margin: 0 0.16em;
+}
+
+.menu__item-meta {
+flex-direction: column;
+align-items: flex-start;
+}
+
+.ingredients__grid,
+.testimonials__grid {
+grid-template-columns: 1fr;
+}
+
+.testimonials__card {
+min-height: auto;
+}
+
+.testimonials__top {
+align-items: flex-start;
+flex-direction: column;
+}
+
+.testimonials__source {
+font-size: 0.62rem;
+}
+
+.testimonials__track {
+display: grid;
+grid-template-columns: 1fr;
+width: 100%;
+animation: none;
+}
+
+.creations__grid {
+grid-template-columns: 1fr;
+gap: var(--space-sm);
+}
+
+.creations__image-wrap {
+height: 300px;
+}
+}
+
+@keyframes testimonials-scroll {
+0% {
+transform: translateX(0);
+}
+100% {
+transform: translateX(-50%);
+}
+}
+
+@keyframes card-float {
+0%,
+100% {
+transform: translateY(0);
+}
+50% {
+transform: translateY(-5px);
+}
+}
+
+@media (prefers-reduced-motion: reduce) {
+.testimonials__track,
+.testimonials__card {
+animation: none !important;
+}
+}
