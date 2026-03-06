@@ -1,20 +1,20 @@
 # restaurant
 
-Site de demonstration pour presenter un concept de restaurant burger premium.
+Demo website created to showcase a premium burger restaurant concept.
 
-## Apercu
+## Preview
 
-![Apercu du site](./docs/preview.png)
+![Website preview](./docs/preview.png)
 
-## Objectif
+## Purpose
 
-Ce projet a ete cree comme vitrine de presentation pour montrer une direction artistique, une mise en page immersive et une experience web orientee restauration.
+This project was built as a presentation piece to showcase art direction, immersive layout work, and a restaurant-focused web experience.
 
-## Contenu
+## Includes
 
-- page d'accueil immersive
-- univers de marque fictif
-- mise en avant des produits, avis et reservation
+- immersive landing page
+- fictional premium restaurant branding
+- product highlights, testimonials, and reservation sections
 
 ## Stack
 
@@ -22,15 +22,17 @@ Ce projet a ete cree comme vitrine de presentation pour montrer une direction ar
 - React
 - TypeScript
 
-## Lancement en local
+## Run locally
 
 ```bash
 npm install
 npm run dev
 ```
 
-Le site est ensuite accessible sur le port configure dans le projet.
+The site will be available on the port configured in the project.
 
 ## Note
 
-Il s'agit d'un site de demonstration concu pour presenter un savoir-faire en design et integration frontend.
+This is a demo website created to present frontend design and integration work.
+
+If you like this project and want to use it, please leave a star on the repository.
