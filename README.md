@@ -2,6 +2,10 @@
 
 Site de demonstration pour presenter un concept de restaurant burger premium.
 
+## Apercu
+
+![Apercu du site](./docs/preview.png)
+
 ## Objectif
 
 Ce projet a ete cree comme vitrine de presentation pour montrer une direction artistique, une mise en page immersive et une experience web orientee restauration.
