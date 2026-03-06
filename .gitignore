@@ -23,6 +23,7 @@
 # misc
 .DS_Store
 *.pem
+package-lock.json
 public/videos/freepik-burger-intro.mp4
 
 # debug
